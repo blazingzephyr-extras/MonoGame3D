@@ -30,7 +30,10 @@ namespace Mg3d
         private ModelLoader modelLoader;
         private const float moveStep = 0.05f;
 
-        private Camera Camera { get; set; } = new Camera();
+        // Not sure what 'Camera' LemiBijafra meant here but a simple Matrix will do. 
+        // private Camera Camera { get; set; } = new Camera();
+        private Matrix Camera { get; set; } = Matrix.Identity;
+
         public TestGame()
         {
             grDevMngr = new GraphicsDeviceManager(this);
@@ -45,15 +48,13 @@ namespace Mg3d
 
             // -> Playground
 
-            var black = new RawColor(0, 0, 0);
-            var white = new RawColor(255, 255, 255);
             var font = new BdfFont("../../../Content/fonts/10x20.bdf");
             var map = font.GetMapOfString("Hello World");
             var bmp = new RawBitmap(map.GetLength(0), map.GetLength(1));
             for (int x = 0; x < bmp.Width; x++)
                 for (int y = 0; y < bmp.Height; y++)
-                    bmp.SetPixel(x, y, map[x, y] ? white : black);
-            //bmp.Save("foo.bmp");
+                    bmp.SetPixel(x, y, map[x, y] ? Color.White : Color.Black);
+            bmp.Save("foo.bmp");
 
             // <-
         }
@@ -83,22 +84,26 @@ namespace Mg3d
         {
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                Camera.RotateLeft(1);
+                // Camera.RotateLeft(1);
+                Camera *= Matrix.CreateRotationY(MathHelper.ToRadians(-1));
             }
             else
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                Camera.RotateRight(1);
+                // Camera.RotateRight(1);
+                Camera *= Matrix.CreateRotationY(MathHelper.ToRadians(1));
             }
             else
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                Camera.Forward(moveStep);
+                // Camera.Forward(moveStep);
+                Camera *= Matrix.CreateTranslation(0, 0, moveStep);
             }
             else
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                Camera.Backward(moveStep);
+                // Camera.Backward(moveStep);
+                Camera *= Matrix.CreateTranslation(0, 0, -moveStep);
             }
         }
         protected override void Draw(GameTime gameTime)
@@ -134,7 +139,7 @@ namespace Mg3d
         public void DrawImportedScene(GraphicsDevice grDev, GameTime gameTime)
         {
             //var viewMx = Camera.EvaluateCamera(/*gameTime.TotalGameTime.TotalMilliseconds*/);
-            var viewMx = Camera.Matrix;
+            var viewMx = Camera; // Camera.Matrix;
             var projMx = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(60), 800 / 480f, .1f, 100f);
             var overallMx = viewMx * projMx;
             //TODO set automatically
